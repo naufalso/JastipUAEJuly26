@@ -1,0 +1,10 @@
+# Jastip UAE-Indonesia Catalog Configuration
+
+# WhatsApp Checkout Settings
+whatsapp_link: "https://wa.me/971502916414"
+default_message: "Halo kak, saya mau jastip:"
+
+# Trip & PO Schedule
+po_closing_date: "1 Juli 2026"
+departure_date: "6 Juli 2026"
+arrival_date: "Pertengahan Juli 2026"
