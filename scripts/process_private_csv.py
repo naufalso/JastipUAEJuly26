@@ -3,6 +3,7 @@ import os
 import csv
 import urllib.request
 import urllib.parse
+import argparse
 
 def download_image(url, output_path):
     """
@@ -36,7 +37,23 @@ def download_image(url, output_path):
         print(f"Failed to download {url}: {e}")
         return False
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Convert the private product CSV into the public catalog CSV."
+    )
+    parser.add_argument(
+        '--remote-img',
+        action='store_true',
+        help=(
+            'Use the original image_link URL in image_path instead of downloading '
+            'the image into assets/<id>/ and using a local path.'
+        ),
+    )
+    return parser.parse_args()
+
 def main():
+    args = parse_args()
+
     # Resolve absolute paths relative to project root
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(script_dir)
@@ -72,24 +89,26 @@ def main():
 
             image_path_value = ""
             if image_url:
-                # Extract filename from URL
-                parsed_url = urllib.parse.urlparse(image_url)
-                filename = os.path.basename(parsed_url.path)
-                
-                # If parsed filename is empty, provide a fallback name
-                if not filename:
-                    filename = f"image_{product_id}.jpg"
-
-                # Define the local destination path relative to project root
-                relative_image_path = f"assets/{product_id}/{filename}"
-                absolute_image_path = os.path.join(project_root, relative_image_path)
-
-                print(f"\nProcessing product ID {product_id}: {row['product']}")
-                success = download_image(image_url, absolute_image_path)
-                if success:
-                    image_path_value = relative_image_path
+                if args.remote_img:
+                    image_path_value = image_url
+                    print(f"\nUsing remote image URL for product ID {product_id}: {row['product']}")
                 else:
-                    image_path_value = ""  # Or keep it blank/log failure
+                    # Extract filename from URL
+                    parsed_url = urllib.parse.urlparse(image_url)
+                    filename = os.path.basename(parsed_url.path)
+
+                    # If parsed filename is empty, provide a fallback name
+                    if not filename:
+                        filename = f"image_{product_id}.jpg"
+
+                    # Define the local destination path relative to project root
+                    relative_image_path = f"assets/{product_id}/{filename}"
+                    absolute_image_path = os.path.join(project_root, relative_image_path)
+
+                    print(f"\nProcessing product ID {product_id}: {row['product']}")
+                    success = download_image(image_url, absolute_image_path)
+                    if success:
+                        image_path_value = relative_image_path
             else:
                 print(f"\nNo image URL for product ID {product_id}: {row['product']}")
 
@@ -97,15 +116,17 @@ def main():
             public_rows.append({
                 'id': product_id,
                 'category': row['category'].strip(),
+                'brand': row.get('brand', '').strip(),
                 'product': row['product'].strip(),
                 'size': row['size'].strip(),
                 'unit': row['unit'].strip(),
                 'idr_sell': row['idr_sell'].strip(),
-                'image_path': image_path_value
+                'image_path': image_path_value,
+                'product_description': row.get('product_description', '').strip()
             })
 
     # Write public CSV database
-    fieldnames = ['id', 'category', 'product', 'size', 'unit', 'idr_sell', 'image_path']
+    fieldnames = ['id', 'category', 'brand', 'product', 'size', 'unit', 'idr_sell', 'image_path', 'product_description']
     with open(output_csv_path, mode='w', encoding='utf-8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
