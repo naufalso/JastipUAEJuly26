@@ -105,12 +105,6 @@ function escapeHTML(value) {
   }[char]));
 }
 
-function formatWeight(totalGrams) {
-  if (totalGrams >= 1000) {
-    return `${(totalGrams / 1000).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 2 })} kg`;
-  }
-  return `${totalGrams} g`;
-}
 
 // Toast show helper
 function showToast(message) {
@@ -296,10 +290,6 @@ function renderProducts() {
             <span>Ukuran</span>
             <b>${escapeHTML(p.size)} ${escapeHTML(p.unit)}</b>
           </div>
-          <div class="meta-item">
-            <span>Berat Jastip</span>
-            <b>± ${(parseFloat(p.size) * 1.3).toFixed(0)} g</b>
-          </div>
         </div>
         <div class="card-price-row">
           <div class="price-wrap">
@@ -351,13 +341,11 @@ function updateCartUI() {
   const itemsContainer = document.getElementById('cart-items-container');
   const badge = document.getElementById('cart-badge');
   const summaryQty = document.getElementById('summary-qty');
-  const summaryWeight = document.getElementById('summary-weight');
   const summaryTotal = document.getElementById('summary-total');
 
   itemsContainer.innerHTML = '';
 
   let totalQty = 0;
-  let totalWeightGrams = 0;
   let totalPriceSum = 0;
 
   const cartEntries = Object.entries(cart);
@@ -381,9 +369,6 @@ function updateCartUI() {
       const subtotal = priceVal * qty;
       totalQty += qty;
 
-      // Gross weight estimation = item net size * 1.3 (to account for wrapper/packaging/cooler bags)
-      const itemWeight = Math.round(parseFloat(prod.size) * 1.3) * qty;
-      totalWeightGrams += itemWeight;
       totalPriceSum += subtotal;
 
       const itemRow = document.createElement('div');
@@ -414,7 +399,6 @@ function updateCartUI() {
   }
 
   summaryQty.textContent = `${totalQty} item`;
-  summaryWeight.textContent = formatWeight(totalWeightGrams);
   summaryTotal.textContent = formatPrice(totalPriceSum);
 }
 
@@ -468,10 +452,6 @@ document.getElementById('checkout-btn').addEventListener('click', () => {
   });
 
   message += `\n*Total Belanja:* ${formatPrice(grandTotal)}`;
-  message += `\n*Estimasi Berat:* ${formatWeight(Object.entries(cart).reduce((sum, [id, qty]) => {
-    const prod = products.find(p => p.id === id);
-    return sum + (prod ? Math.round(parseFloat(prod.size) * 1.3) * qty : 0);
-  }, 0))}`;
 
   // Open WhatsApp Link
   const baseLink = jastipConfig.whatsapp_link || "https://wa.me/971502916414";
