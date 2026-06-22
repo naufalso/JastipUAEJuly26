@@ -38,6 +38,7 @@ const fallbackConfig = {
 let products = [];
 let jastipConfig = {};
 let cart = {}; // maps productId -> quantity
+let sortOrder = 'price-asc';
 
 // Helpers
 function parseCSV(text) {
@@ -206,6 +207,13 @@ function initializeFilters() {
   document.getElementById('search-input').addEventListener('input', () => {
     renderProducts();
   });
+
+  const sortSelect = document.getElementById('sort-select');
+  sortSelect.value = sortOrder;
+  sortSelect.addEventListener('change', () => {
+    sortOrder = sortSelect.value;
+    renderProducts();
+  });
 }
 
 // Render cards to the main grid
@@ -217,16 +225,22 @@ function renderProducts() {
   const categoryFilter = activeChip ? activeChip.getAttribute('data-category') : 'all';
   const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
 
-  const filtered = products.filter(p => {
-    const matchesCategory = (categoryFilter === 'all' || p.category === categoryFilter);
-    const matchesSearch = (
-      p.product.toLowerCase().includes(searchVal) ||
-      p.category.toLowerCase().includes(searchVal) ||
-      (p.brand && p.brand.toLowerCase().includes(searchVal)) ||
-      (p.product_description && p.product_description.toLowerCase().includes(searchVal))
-    );
-    return matchesCategory && matchesSearch;
-  });
+  const filtered = products
+    .filter(p => {
+      const matchesCategory = (categoryFilter === 'all' || p.category === categoryFilter);
+      const matchesSearch = (
+        p.product.toLowerCase().includes(searchVal) ||
+        p.category.toLowerCase().includes(searchVal) ||
+        (p.brand && p.brand.toLowerCase().includes(searchVal)) ||
+        (p.product_description && p.product_description.toLowerCase().includes(searchVal))
+      );
+      return matchesCategory && matchesSearch;
+    })
+    .sort((a, b) => {
+      const priceA = parsePrice(a.idr_sell);
+      const priceB = parsePrice(b.idr_sell);
+      return sortOrder === 'price-desc' ? priceB - priceA : priceA - priceB;
+    });
 
   if (filtered.length === 0) {
     grid.innerHTML = `

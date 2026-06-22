@@ -73,8 +73,18 @@
                 <input type="text" id="search-input" placeholder="Cari produk jastip favoritmu..." />
             </div>
 
-            <div class="filter-chips" id="filter-chips">
-                <button class="chip active" data-category="all">Semua</button>
+            <div class="toolbar-actions">
+                <label class="sort-control" for="sort-select">
+                    <span>Urutkan</span>
+                    <select id="sort-select" aria-label="Urutkan produk berdasarkan harga">
+                        <option value="price-asc" selected>Harga: rendah ke tinggi</option>
+                        <option value="price-desc">Harga: tinggi ke rendah</option>
+                    </select>
+                </label>
+
+                <div class="filter-chips" id="filter-chips">
+                    <button class="chip active" data-category="all">Semua</button>
+                </div>
             </div>
         </div>
     </div>
