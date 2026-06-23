@@ -58,7 +58,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(script_dir)
 
-    input_csv_path = os.path.join(project_root, 'private', 'Jastip UAE-Indo July 2026 - PriceList.csv')
+    input_csv_path = os.path.join(project_root, 'private', 'Pricelist.csv')
     output_csv_path = os.path.join(project_root, 'data', 'product_list.csv')
 
     print(f"Reading private CSV from: {input_csv_path}")
